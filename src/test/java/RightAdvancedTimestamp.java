@@ -2,12 +2,10 @@ import impl.AdvancedTimestamp;
 import interfaces.IAdvancedTimestamp;
 import interfaces.IUnixTimestamp;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Locale;
 
 public class RightAdvancedTimestamp extends RightUnixTimestamp implements IAdvancedTimestamp {
 
@@ -53,7 +51,7 @@ public class RightAdvancedTimestamp extends RightUnixTimestamp implements IAdvan
 
     public static IAdvancedTimestamp create(int secondsSince1970) {
         if (secondsSince1970 < 0){
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("" + secondsSince1970);
         }
         RightAdvancedTimestamp ts = new RightAdvancedTimestamp();
         ts.s = secondsSince1970;
@@ -64,11 +62,10 @@ public class RightAdvancedTimestamp extends RightUnixTimestamp implements IAdvan
         long unix = -1;
         try {
             DateTimeFormatter df = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-            LocalDateTime r = LocalDateTime.parse(s, df);
+            LocalDateTime r = LocalDate.parse(s, df).atStartOfDay();
             ZonedDateTime z = r.atZone(ZoneId.of("Etc/UTC"));
             unix = z.toEpochSecond();
         } catch (DateTimeParseException e) {
-
         }
         try {
             DateTimeFormatter df = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
@@ -76,13 +73,12 @@ public class RightAdvancedTimestamp extends RightUnixTimestamp implements IAdvan
             ZonedDateTime z = r.atZone(ZoneId.of("Etc/UTC"));
             unix = z.toEpochSecond();
         } catch (DateTimeParseException e) {
-
         }
         if (unix < 0) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException(s + " " + unix);
         }
         if (unix > Integer.MAX_VALUE) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException(s + " " + unix);
         }
         return create((int) unix);
     }
